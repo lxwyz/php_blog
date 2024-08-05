@@ -1,150 +1,125 @@
+<?php
+  require 'config/config.php';
+  require 'config/common.php';
+
+  session_start();
+
+  if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
+    header('Location: login.php');
+  }
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Blog Site</title>
+  <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Blog Site | Thant Sin Linn</title>
-
-  <!-- Google Font: Source Sans Pro -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
-  <style>
-    .content .container-fluid h1{
-        text-align:center;
-    }
-    .card-title h4 {
-      margin: 0;
-      font-weight: 600;
-    }
-    .card-body img {
-      width: 100%;
-      height: auto;
-    }
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .card-footer .btn {
-      margin: 0 5px;
-    }
-    .main-footer {
-      background-color: #f8f9fa;
-      padding: 10px;
-      color: #6c757d;
-      text-align: center;
-      border-top: 1px solid #dee2e6;
-    }
-    .main-footer a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .main-footer a:hover {
-      text-decoration: underline;
-    }
-    body, html {
-      height: 100%;
-    }
-    .content-wrapper {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    .content {
-      flex: 1;
-    }
-  </style>
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
 <body class="hold-transition sidebar-mini">
-
-
-  <!-- Main content -->
-  <section class="">
-    <section class="content">
+<div class="wrapper">
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="margin-left:0px !important">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
       <div class="container-fluid">
-        <h1>Blog Site</h1>
-        <div class="row">
+            <h1 style="text-align:center">Blog Site</h1>
+      </div><!-- /.container-fluid -->
+    </section>
+    <?php
+      if (!empty($_GET['pageno'])) {
+        $pageno = $_GET['pageno'];
+      }else{
+        $pageno = 1;
+      }
+
+      $numOfrecs = 6;
+      $offset = ($pageno - 1) * $numOfrecs;
+
+      $stmt = $pdo->prepare("SELECT * FROM posts ORDER BY id DESC");
+      $stmt->execute();
+      $rawResult = $stmt->fetchAll();
+
+      $total_pages = ceil(count($rawResult) / $numOfrecs);
+
+      $stmt = $pdo->prepare("SELECT * FROM posts ORDER BY id DESC LIMIT $offset,$numOfrecs");
+      $stmt->execute();
+      $result = $stmt->fetchAll();
+
+    ?>
+    <!-- Main content -->
+    <section class="content">
+      <div class="row">
+        <?php
+        if ($result) {
+          $i = 1;
+          foreach ($result as $value) { ?>
             <div class="col-md-4">
-                <div class="card card-widget">
-                    <div div class="card-header text-center">
-                        <h4>Blog Title</h4>
-                    </div>
-                     <div class="card-body">
-                        <img src="dist/img/photo2.png" alt="Blog Image" class="img-fluid">
-                        <div class="card-footer">
-                            <div>
-                            <a href="#" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i> Edit</a>
-                            <a href="#" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Delete</a>
-                            </div>
-                        </div>
-                    </div>
+              <!-- Box Comment -->
+              <div class="card card-widget">
+                <div class="card-header">
+                  <div style="text-align:center !important;float:none" class="card-title">
+                    <h4><?php echo escape($value['title'])?></h4>
+                  </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card card-widget">
-                    <div div class="card-header text-center">
-                        <h4>Blog Title</h4>
-                        <span class="badge badge-info">Category</span>
-                    </div>
-                     <div class="card-body">
-                        <img src="dist/img/photo2.png" alt="Blog Image" class="img-fluid">
-                        <div class="card-footer">
-                            <div>
-                            <a href="#" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i> Edit</a>
-                            <a href="#" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Delete</a>
-                            </div>
-                        </div>
-                    </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                  <a href="blogdetail.php?id=<?php echo $value['id'];?>"><img class="img-fluid pad" src="admin/images/<?php echo $value['image']?>" style="height: 200px !important;"></a>
                 </div>
+                <!-- /.card-body -->
+              </div>
+              <!-- /.card -->
             </div>
-            <div class="col-md-4">
-                <div class="card card-widget">
-                    <div div class="card-header text-center">
-                        <h4>Blog Title</h4>
-                        <span class="badge badge-info">Category</span>
-                    </div>
-                     <div class="card-body">
-                        <img src="dist/img/photo2.png" alt="Blog Image" class="img-fluid">
-                        <div class="card-footer">
-                            <div>
-                            <a href="#" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i> Edit</a>
-                            <a href="#" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Delete</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        
-        </div>
-      
+        <?php
+          $i++;
+          }
+        }
+        ?>
+
+      </div>
+      <!-- /.row -->
+      <div class="row" style="float:right;margin-right:0px">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li class="page-item"><a class="page-link" href="?pageno=1">First</a></li>
+            <li class="page-item <?php if($pageno <= 1){ echo 'disabled';} ?>">
+              <a class="page-link" href="<?php if($pageno <= 1) {echo '#';}else{ echo "?pageno=".($pageno-1);}?>">Previous</a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#"><?php echo $pageno; ?></a></li>
+            <li class="page-item <?php if($pageno >= $total_pages){ echo 'disabled';} ?>">
+              <a class="page-link" href="<?php if($pageno >= $total_pages) {echo '#';}else{ echo "?pageno=".($pageno+1);}?>">Next</a>
+            </li>
+            <li class="page-item"><a class="page-link" href="?pageno=<?php echo $total_pages?>">Last</a></li>
+          </ul>
+        </nav>
+      </div><br><br>
     </section>
     <!-- /.content -->
 
     <a id="back-to-top" href="#" class="btn btn-primary back-to-top" role="button" aria-label="Scroll to top">
       <i class="fas fa-chevron-up"></i>
     </a>
-
-    <!-- Footer -->
-    <footer class="main-footer" style="margin-left:0px !important">
+  </div>
+  <!-- /.content-wrapper -->
+  <!-- Main Footer -->
+  <footer class="main-footer" style="margin-left:0px !important">
     <!-- To the right -->
     <div class="float-right d-none d-sm-inline">
       <a href="logout.php" type="button" class="btn btn-default">Logout</a>
     </div>
     <!-- Default to the left -->
-    <strong>Copyright &copy; 2020 <a href="#">Thant Sin Linn</a>.</strong> All rights reserved.
+    <strong>Copyright &copy; 2020 <a href="#">A Programmer</a>.</strong> All rights reserved.
   </footer>
-  </section>
-
-  <!-- Control Sidebar -->
-  
-  <!-- /.control-sidebar -->
-
-<!-- ./wrapper -->
+</div>
 
 <!-- jQuery -->
 <script src="plugins/jquery/jquery.min.js"></script>
